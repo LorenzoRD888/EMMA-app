@@ -1,0 +1,15 @@
+# Your data and keys never go on GitHub
+data/
+data-*/
+.env
+*.sqlite
+*.sqlite-*
+*.db
+# Downloaded at the first start
+app/node_modules/
+app/.runtime/
+node_modules/
+# System files
+.DS_Store
+Thumbs.db
+*.log

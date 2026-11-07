@@ -1,0 +1,65 @@
+EMMA - Market Intelligence
+==========================
+
+EMMA follows competitors and other companies: news, official websites,
+trade fairs, people, publications. It runs on your computer and keeps
+everything on your computer.
+
+
+START EMMA
+----------
+
+Mac       double-click  "Start EMMA - Mac.command"
+Windows   double-click  "Start EMMA - Windows.bat"
+
+The first start takes a few minutes: EMMA downloads what it needs
+(Node.js and its libraries, no administrator password needed).
+Then EMMA opens in your browser at http://127.0.0.1:4317
+
+Keep the small black window open while you use EMMA.
+Closing it stops EMMA.
+
+The very first time, the computer may warn you about a downloaded file:
+  Mac      right-click the file -> Open -> Open
+           (or System Settings -> Privacy & Security -> Open Anyway)
+  Windows  "Windows protected your PC" -> More info -> Run anyway
+
+On the first start a welcome screen helps you choose:
+  - with a local AI (free, private, needs a few GB), or
+  - without AI (everything is collected anyway, no summaries).
+
+
+WHAT IS IN THIS FOLDER
+----------------------
+
+Start EMMA - Mac.command     starts EMMA on a Mac
+Start EMMA - Windows.bat     starts EMMA on Windows
+data                         YOUR DATA: companies, news, settings and keys
+app                          the program (do not change it)
+
+The "data" folder is created at the first start. It contains your API keys:
+do not share it. To make a backup, close EMMA and copy the "data" folder.
+
+
+UPDATE TO A NEW VERSION
+-----------------------
+
+Option A - keep this folder:
+  1. Close EMMA.
+  2. Replace the "app" folder with the "app" folder of the new version.
+  3. Start EMMA. Your "data" folder is untouched.
+
+Option B - new folder:
+  1. Unzip the new version in a new folder and start it.
+  2. In the welcome screen choose "Bring its companies and news here" and
+     paste the path of the old EMMA folder. The old folder is not changed.
+
+
+PROBLEMS
+--------
+
+- Nothing opens: check that the black window shows "EMMA is available at
+  http://127.0.0.1:4317" and open that address in the browser.
+- Downloads fail: turn off any VPN or proxy and start EMMA again.
+- Mac, "Operation not permitted": move the EMMA folder out of Desktop,
+  Documents or Downloads (for example into your home folder).
