@@ -37,6 +37,9 @@ Start EMMA - Windows.bat     starts EMMA on Windows
 data                         YOUR DATA: companies, news, settings and keys
 app                          the program (do not change it)
 
+The local voice that reads the Daily aloud is included: the first time you
+press play EMMA downloads the voice model once (about 90 MB).
+
 The "data" folder is created at the first start. It contains your API keys:
 do not share it. To make a backup, close EMMA and copy the "data" folder.
 

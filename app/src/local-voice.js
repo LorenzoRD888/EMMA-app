@@ -15,9 +15,10 @@ export function createLocalVoice(dataDir,{synthesize,maxEntries=48}={}){
    // Drain diagnostics without logging article text or returning internal paths.
    const child=worker;worker.stderr.on('data',()=>{});
    worker.on('error',()=>{if(worker===child)close();});worker.on('exit',()=>{if(worker!==child)return;worker=null;if(request){clearTimeout(request.timer);request.reject(fail('The local voice could not start. Please restart EMMA.',503));request=null;}});
-   worker.on('message',m=>{if(request?.id!==m.id)return;const current=request;request=null;clearTimeout(current.timer);if(m.error)current.reject(fail('The local voice is not ready. Check the Kokoro installation.',503));else current.resolve(Buffer.from(m.audio,'base64'));idleTimer=setTimeout(close,300000);idleTimer.unref();});
+   worker.on('message',m=>{if(request?.id!==m.id)return;const current=request;request=null;clearTimeout(current.timer);if(m.error)current.reject(fail('The local voice is not ready. The first time EMMA downloads the voice (about 90 MB): check the internet connection and try again.',503));else current.resolve(Buffer.from(m.audio,'base64'));idleTimer=setTimeout(close,300000);idleTimer.unref();});
   }
-  const id=randomUUID(),timer=setTimeout(()=>{close();},120000);timer.unref();
+  // The first time the voice model (about 90 MB) is downloaded: allow up to 10 minutes.
+  const id=randomUUID(),timer=setTimeout(()=>{close();},600000);timer.unref();
   request={id,resolve,reject,timer};worker.send({id,text});
  });}
  async function trim(){const names=(await readdir(cache)).filter(n=>/^[a-f0-9]{64}\.wav$/.test(n));if(names.length<=maxEntries)return;const records=await Promise.all(names.map(async name=>({name,time:(await stat(path.join(cache,name))).mtimeMs})));records.sort((a,b)=>a.time-b.time);for(const r of records.slice(0,records.length-maxEntries))await unlink(path.join(cache,r.name)).catch(()=>{});}

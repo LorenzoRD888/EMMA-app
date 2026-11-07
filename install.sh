@@ -46,7 +46,7 @@ fi
 export PATH="$RUNTIME/bin:$PATH"
 node -v >/dev/null || fail "Node.js does not start on this Mac."
 
-say "3/4 · Installing the libraries (about a minute)…"
+say "3/4 · Installing the libraries (a few minutes)…"
 ( cd "$DEST/app" && npm install --omit=dev --no-audit --no-fund --loglevel=error ) \
   || fail "Library installation failed. Run this command again; if it keeps failing, send the messages above to the author."
 ( cd "$DEST/app" && node -e "import('./src/db.js').then(m=>{const d=m.default(':memory:');d.exec('create table t(a)');process.exit(0)})" ) \

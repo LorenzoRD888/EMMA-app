@@ -29,8 +29,8 @@ if [ -n "$RUNNING" ] && [ "$RUNNING" != "$WANTED" ]; then
 fi
 if [ -z "$RUNNING" ]; then
   # First start after downloading from GitHub: install the libraries.
-  if [ ! -d node_modules/express ]; then
-    /usr/bin/osascript -e 'display notification "First start: installing EMMA libraries (about a minute)…" with title "EMMA"' >/dev/null 2>&1
+  if [ ! -d node_modules/express ] || [ ! -d node_modules/kokoro-js ]; then
+    /usr/bin/osascript -e 'display notification "Installing EMMA libraries (a few minutes the first time)…" with title "EMMA"' >/dev/null 2>&1
     npm install --omit=dev --no-audit --no-fund >> "$EMMA_DIR/data/emma.log" 2>&1 || { if tail -60 "$EMMA_DIR/data/emma.log" | grep -q "EPERM"; then alert "macOS does not let EMMA read its folder ($EMMA_DIR). Move the EMMA folder into your home folder and run app/assets/install-app.sh again, or allow it in System Settings → Privacy & Security → Files and Folders → EMMA."; else alert "EMMA could not install its libraries. Check the internet connection; details are in data/emma.log."; fi; exit 1; }
   fi
   # Start EMMA as a macOS background service (launchd): it keeps running after

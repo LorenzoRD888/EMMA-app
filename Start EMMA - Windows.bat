@@ -29,7 +29,7 @@ if defined RUNNING if "%RUNNING%"=="%WANTED%" (
 if not "%RUNNING%"=="" call :stopold
 
 rem --- Libraries: installed the first time (or when missing)
-node -e "require('express');require('docx')" >nul 2>nul
+node -e "require.resolve('express');require.resolve('docx');require.resolve('kokoro-js')" >nul 2>nul
 if errorlevel 1 call :libraries || goto :fail_libs
 
 echo.
@@ -60,7 +60,7 @@ echo  Installing the EMMA libraries (about a minute, only the first time)...
 if exist "node_modules" rmdir /s /q "node_modules"
 call npm install --omit=dev --no-audit --no-fund --loglevel=error
 if errorlevel 1 exit /b 1
-node -e "require('express');require('docx')" >nul 2>nul
+node -e "require.resolve('express');require.resolve('docx');require.resolve('kokoro-js')" >nul 2>nul
 exit /b %errorlevel%
 
 :stopold

@@ -34,7 +34,7 @@ if [[ -n "$RUNNING" ]]; then
 fi
 
 # Libraries: installed the first time (or when missing).
-if ! node -e "require('express');require('docx')" >/dev/null 2>&1; then
+if ! node -e "require.resolve('express');require.resolve('docx');require.resolve('kokoro-js')" >/dev/null 2>&1; then
   echo "Installing the EMMA libraries (about a minute, only the first time)…"
   rm -rf node_modules
   npm install --omit=dev --no-audit --no-fund --loglevel=error || { echo "\nThe libraries could not be installed. Check the internet connection and try again."; read; exit 1; }

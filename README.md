@@ -11,6 +11,7 @@ EMMA follows competitors and other companies for you: news, official websites, L
 - **Post-its that EMMA follows**: write a note on a company and the next update looks for news about it.
 - **Learns from you**: sources you keep or discard change what EMMA keeps next time.
 - **Link safety**: every external link is checked (✓ trusted, ⚠ be careful, ⛔ dangerous).
+- **Listen to the Daily**: a local voice (Kokoro, included) reads the news aloud. The voice model (about 90 MB) is downloaded once, the first time you press play; the text never leaves your computer.
 - **Optional local AI** (Ollama + Gemma): summaries and briefs without sending anything outside your computer. EMMA also works without AI.
 
 ## Install
