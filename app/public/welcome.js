@@ -30,6 +30,10 @@ function pathHelp() {
 function previousBox() {
   const empty = !W.st.companies;
   if (W.imported) return `<section class="w-card done"><h3>✓ Data brought from the previous EMMA</h3><p class="small">${W.imported.companies} companies, ${W.imported.news} news items and ${W.imported.people} people are now in this EMMA. The copy of the data that was here before is kept in <code>data/backups</code>. ${esc(W.imported.settingsNote || 'Settings and keys were copied too.')}</p></section>`;
+  // A new, empty EMMA: ask first, clearly, whether an older EMMA is already on this computer.
+  if (!W.prevOpen && empty && !W.prevNo) return `<section class="w-card w-first"><h3>Is EMMA already on this computer?</h3>
+    <p class="small">If you used an older version of EMMA, this new version can take its companies, news, people, notes, settings and keys. Nothing is lost and the old folder is not changed.</p>
+    <div class="actions"><button class="btn primary" data-w="prev-toggle">Yes, update it and keep my data</button><button class="btn" data-w="prev-no">No, this is my first time</button></div></section>`;
   if (!W.prevOpen) return `<p class="small muted">${empty ? 'Updating from an older EMMA?' : 'Have data in an older EMMA?'} <button class="link-btn" data-w="prev-toggle">Bring its companies and news here</button></p>`;
   const f = W.prev;
   const found = f ? `<div class="w-prev"><div><b>${esc(f.name)}</b>${f.version ? ` <span class="pill">version ${esc(f.version)}</span>` : ''}<br><span class="small muted">${esc(f.path)}</span><br><span class="small">${f.companies} companies · ${f.news} news · ${f.people} people · last update ${day(f.lastUpdate || f.modified)}</span>${f.names?.length ? `<br><span class="small muted">${f.names.map(esc).join(', ')}${f.companies > f.names.length ? '…' : ''}</span>` : ''}</div><button class="btn primary" data-w="import" data-path="${esc(f.path)}" ${W.importing ? 'disabled' : ''}>${W.importing ? '<span class="spinner">◌</span> Bringing…' : 'Bring these data here'}</button></div>` : '';
@@ -142,6 +146,7 @@ document.addEventListener('click', async e => {
     if (w === 'refresh') return refresh(true);
     if (w === 'skip') { await api('/dismiss', { method: 'POST', body: { dismissed: true } }); $('#dialog').close(); return; }
     if (w === 'prev-toggle') { W.prevOpen = true; return paint(); }
+    if (w === 'prev-no') { W.prevNo = true; return paint(); }
     if (w === 'prev-look') { if (!W.prevPath.trim()) return; W.prev = null; W.prevError = ''; try { W.prev = await api('/inspect?path=' + encodeURIComponent(W.prevPath.trim())); } catch (x) { W.prevError = x.message; } return paint(); }
     if (w === 'import') {
       const path = b.dataset.path;
@@ -162,8 +167,9 @@ document.addEventListener('click', async e => {
   } catch (x) { W.error = x.message; paint(); }
 });
 
-// First start: open by itself when no AI is ready and the screen was not closed with "Decide later".
+// First start: open by itself when EMMA is still empty (to offer bringing the data of an older EMMA)
+// or no AI is ready, unless the screen was closed with "Decide later".
 (async () => {
-  try { const s = await api('/status'); if (!s.aiReady && !s.dismissed) setTimeout(open, 400); } catch {}
+  try { const s = await api('/status'); if (!s.dismissed && (!s.companies || !s.aiReady)) setTimeout(open, 400); } catch {}
 })();
 window.emmaWelcome = open;

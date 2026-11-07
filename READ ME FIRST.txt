@@ -20,13 +20,16 @@ Keep the small black window open while you use EMMA.
 Closing it stops EMMA.
 
 The very first time, the computer may warn you about a downloaded file:
-  Mac      right-click the file -> Open -> Open
-           (or System Settings -> Privacy & Security -> Open Anyway)
+  Mac      "cannot be opened": press Done (not Move to Trash), then
+           System Settings -> Privacy & Security -> Open Anyway
   Windows  "Windows protected your PC" -> More info -> Run anyway
 
-On the first start a welcome screen helps you choose:
-  - with a local AI (free, private, needs a few GB), or
-  - without AI (everything is collected anyway, no summaries).
+On the first start a welcome screen asks:
+  - whether EMMA is already on this computer: answer "Yes" to bring the
+    companies, news and keys of your old EMMA into this version;
+  - how you want to use EMMA:
+    with a local AI (free, private, needs a few GB), or
+    without AI (everything is collected anyway, no summaries).
 
 
 WHAT IS IN THIS FOLDER
@@ -54,7 +57,7 @@ Option A - keep this folder:
 
 Option B - new folder:
   1. Unzip the new version in a new folder and start it.
-  2. In the welcome screen choose "Bring its companies and news here" and
+  2. In the welcome screen answer "Yes, update it and keep my data" and
      paste the path of the old EMMA folder. The old folder is not changed.
 
 
