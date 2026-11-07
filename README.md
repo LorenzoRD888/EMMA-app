@@ -67,6 +67,26 @@ A welcome screen guides you through:
 
 More details are in **READ ME FIRST.txt**.
 
+## If a download does not work (VPN, proxy, company network)
+
+The first time, EMMA downloads a few things from the internet:
+
+- Node.js and its libraries;
+- the **local AI model** (Ollama + Gemma, several GB);
+- the **voice model** (about 90 MB, from Hugging Face).
+
+A **VPN**, a proxy or a company network can block or interrupt these downloads, especially the large local AI model. The usual symptoms are:
+
+- the download stops or never ends;
+- the error says it cannot connect;
+- the welcome screen says the model is not ready.
+
+What to do:
+
+1. Turn off the VPN (or connect to a home network) just for the first setup.
+2. Start EMMA again and repeat the step that failed (for the AI: the welcome screen, or **Settings → AI**).
+3. When everything is downloaded you can turn the VPN back on. The local AI and the voice then work offline.
+
 ## Your data
 
 Everything you collect, and your API keys, live in the `data/` folder next to `app/`. That folder is never uploaded here (see `.gitignore`) and updates never touch it.
