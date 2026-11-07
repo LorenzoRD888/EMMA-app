@@ -16,23 +16,50 @@ EMMA follows competitors and other companies for you: news, official websites, L
 
 ## Install
 
-### Mac (one line)
+### Mac — recommended: one command in Terminal
 
-Open Terminal and paste:
+This is the easiest way, and macOS shows **no security warning**.
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/LorenzoRD888/EMMA-app/main/install.sh | bash
-```
+1. Open **Terminal**: press `Cmd + Space`, type `Terminal` and press Enter.
+2. Copy this line, paste it into Terminal and press Enter:
 
-This installs EMMA in `~/EMMA`, with a private Node.js (no administrator password), and creates the EMMA app in Applications and on the Desktop. Running it again updates EMMA and keeps your data.
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/LorenzoRD888/EMMA-app/main/install.sh | bash
+   ```
 
-### Mac or Windows (zip)
+3. Wait a few minutes. The installer:
+   - downloads EMMA into the **EMMA** folder in your home folder;
+   - downloads its own copy of Node.js (no administrator password, nothing else on your Mac changes);
+   - creates the **EMMA** icon in Applications and on the Desktop;
+   - opens EMMA.
 
-1. **Code → Download ZIP**, then unzip it.
-2. Double-click **Start EMMA - Mac.command** (Mac) or **Start EMMA - Windows.bat** (Windows).
-3. The first start downloads what EMMA needs. Then EMMA opens at http://127.0.0.1:4317.
+From then on, double-click the **EMMA** icon. To update EMMA, paste the same line again: your data is kept.
 
-A welcome screen then guides you through:
+### Why not just download the zip on a Mac?
+
+You can, but macOS blocks the first opening of any file downloaded with the browser that is not signed by Apple. It shows the message *"Start EMMA - Mac.command" cannot be opened*. EMMA is fine; macOS does this for every unsigned download. The Terminal command above avoids it.
+
+If you downloaded the zip anyway:
+
+1. Click **Done** in the message.
+2. Open **System Settings → Privacy & Security**.
+3. Scroll down to *"Start EMMA - Mac.command" was blocked* and click **Open Anyway**.
+4. Confirm.
+
+You only need to do this the first time.
+
+### Windows
+
+1. On this page click **Code → Download ZIP**, then unzip it (right-click → *Extract All*).
+2. Double-click **Start EMMA - Windows.bat**.
+3. If Windows shows *"Windows protected your PC"*, click **More info → Run anyway**. This happens only the first time.
+4. The first start downloads what EMMA needs (a few minutes). Then EMMA opens in the browser at http://127.0.0.1:4317.
+
+Keep the small black window open while you use EMMA; closing it stops EMMA.
+
+### First start
+
+A welcome screen guides you through:
 
 - the setup, with or without local AI;
 - importing the data of a previous EMMA;
