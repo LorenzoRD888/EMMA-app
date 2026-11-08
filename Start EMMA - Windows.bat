@@ -18,11 +18,12 @@ if exist "%CD%\.runtime\node.exe" set "PATH=%CD%\.runtime;%PATH%"
 node -e "require('node:sqlite')" >nul 2>nul
 if errorlevel 1 call :getnode || goto :fail_node
 
-rem --- Already running? Same version: just open it. Older version: stop it.
+rem --- Already running? Same version and same folder: just open it.
+rem     Another version, or another copy of EMMA in a different folder: stop it.
 for /f "delims=" %%v in ('node -p "require('./package.json').version"') do set "WANTED=%%v"
 set "RUNNING="
-for /f "delims=" %%r in ('node -e "fetch('%URL%/api/status').then(r=>r.json()).then(j=>console.log(j.version||'')).catch(()=>{})" 2^>nul') do set "RUNNING=%%r"
-if defined RUNNING if "%RUNNING%"=="%WANTED%" (
+for /f "delims=" %%r in ('node -e "fetch('%URL%/api/status').then(r=>r.json()).then(j=>{const same=String(j.folder||'').toLowerCase()===require('path').resolve('..').toLowerCase();console.log((j.version||'?')+'#'+(same?'same':'other'))}).catch(()=>{})" 2^>nul') do set "RUNNING=%%r"
+if defined RUNNING if "%RUNNING%"=="%WANTED%#same" (
   start "" "%URL%"
   exit /b 0
 )
@@ -64,7 +65,7 @@ node -e "require.resolve('express');require.resolve('docx');require.resolve('kok
 exit /b %errorlevel%
 
 :stopold
-echo  EMMA %RUNNING% is running: closing it and starting version %WANTED%...
+echo  Another EMMA is running: closing it and starting this one (version %WANTED%)...
 for /f "tokens=5" %%p in ('netstat -ano ^| findstr /r /c:":4317 .*LISTENING"') do taskkill /PID %%p /F >nul 2>nul
 timeout /t 2 /nobreak >nul
 exit /b 0

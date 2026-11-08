@@ -19,10 +19,15 @@ if ! command -v node >/dev/null 2>&1; then alert "EMMA needs Node.js. Run the in
 log "start · folder $EMMA_DIR · node $(command -v node) $(node -v 2>/dev/null)"
 mkdir -p "$EMMA_DIR/data"; cd "$APP_DIR" || { log "cannot enter the folder"; alert "macOS does not let EMMA open its folder ($EMMA_DIR). Run install-app.sh again from Terminal."; exit 1; }
 WANTED=$(node -p "require('./package.json').version" 2>/dev/null)
-RUNNING=$(curl -fsS --max-time 2 "$URL/api/status" 2>/dev/null | /usr/bin/sed -n 's/.*"app":"EMMA","version":"\([^"]*\)".*/\1/p')
+STATUS=$(curl -fsS --max-time 2 "$URL/api/status" 2>/dev/null)
+RUNNING=$(printf '%s' "$STATUS" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const j=JSON.parse(s);if(j.app==='EMMA')console.log(j.version)}catch{}})")
+FOLDER=$(printf '%s' "$STATUS" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s).folder||'')}catch{}})")
+HERE="$(cd "$EMMA_DIR" && pwd -P)"
 
-log "wanted $WANTED · running ${RUNNING:-none}"
-if [ -n "$RUNNING" ] && [ "$RUNNING" != "$WANTED" ]; then
+log "wanted $WANTED · running ${RUNNING:-none} · running folder ${FOLDER:-unknown}"
+# Another version, or another copy of EMMA in a different folder: close it and start this one.
+if [ -n "$RUNNING" ] && { [ "$RUNNING" != "$WANTED" ] || [ "$FOLDER" != "$HERE" ]; }; then
+  launchctl bootout "gui/$(id -u)/it.emma.server" >/dev/null 2>&1
   for pid in $(/usr/sbin/lsof -ti tcp:4317 -sTCP:LISTEN 2>/dev/null); do kill "$pid" 2>/dev/null; done
   for i in $(seq 1 20); do curl -fsS --max-time 1 "$URL/api/status" >/dev/null 2>&1 || break; sleep 0.5; done
   RUNNING=""

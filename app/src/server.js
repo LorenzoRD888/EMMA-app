@@ -3,6 +3,8 @@ import { analysisReadiness } from '../public/analysis-readiness.js';
 import 'dotenv/config';
 import dotenv from 'dotenv';
 import express from 'express';
+import { realpathSync } from 'node:fs';
+const realFolder=dir=>{try{return realpathSync(dir);}catch{return path.resolve(dir);}};
 import {createAudit,withAudit,summaryAudit} from './services/research-audit.js';
 import { openMarket } from './market-store.js';
 import { createMarketService } from './market-service.js';
@@ -29,7 +31,7 @@ app.use((req,res,next)=>{if(req.headers.host!==`127.0.0.1:${process.env.PORT||43
 app.use(express.json({limit:'2mb'}));app.get('/analysis.html',(req,res)=>res.redirect('/#archive'));app.use(express.static(path.join(root,'public'),{setHeaders:res=>res.setHeader('Cache-Control','no-store')}));
 const wrap=fn=>(req,res,next)=>Promise.resolve(fn(req,res)).catch(next);
 const file=id=>{if(!/^[\da-f-]{36}$/.test(id))throw Error('Invalid identifier');return path.join(data,id+'.json');};
-app.get('/api/status',(req,res)=>res.json({app:'EMMA',version:VERSION,...analysisReadiness(settings.snapshot()),categories:COMPETITOR_CATEGORIES}));
+app.get('/api/status',(req,res)=>res.json({app:'EMMA',version:VERSION,folder:realFolder(home),...analysisReadiness(settings.snapshot()),categories:COMPETITOR_CATEGORIES}));
 app.get('/api/settings',(req,res)=>{res.set('Cache-Control','no-store');res.json(settings.snapshot());});
 app.post('/api/settings',wrap(async(req,res)=>{if(busy||intelligence.busy())return res.status(409).json({error:'Wait for the analysis to finish before changing settings.'});try{res.json(await settings.save(req.body));}catch(error){const storage=['EACCES','EPERM','ENOENT','EROFS'].includes(error.code);res.status(storage?500:400).json({error:storage?'Couldn’t write the settings. Restart EMMA from its folder and check permissions.':error.message||'Invalid settings.'});}}));
 app.post('/api/settings/reveal',(req,res)=>{res.set('Cache-Control','no-store');try{res.json({value:settings.reveal(String(req.body?.key||''))});}catch(e){res.status(400).json({error:e.message});}});

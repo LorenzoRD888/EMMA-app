@@ -25,10 +25,17 @@ if ! node -e "require('node:sqlite')" >/dev/null 2>&1; then
 fi
 
 WANTED=$(node -p "require('./package.json').version")
-RUNNING=$(curl -fsS --max-time 2 "$URL/api/status" 2>/dev/null | /usr/bin/sed -n 's/.*"app":"EMMA","version":"\([^"]*\)".*/\1/p')
-if [[ -n "$RUNNING" && "$RUNNING" == "$WANTED" ]]; then open "$URL"; exit 0; fi
+HERE="$(cd .. && pwd -P)"
+# Which EMMA answers on the port: version and folder. Another copy of EMMA
+# (another folder, e.g. an older one) is closed so that this one opens with its own data.
+STATUS=$(curl -fsS --max-time 2 "$URL/api/status" 2>/dev/null)
+RUNNING=$(printf '%s' "$STATUS" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{const j=JSON.parse(s);if(j.app==='EMMA')console.log(j.version)}catch{}})")
+FOLDER=$(printf '%s' "$STATUS" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{try{console.log(JSON.parse(s).folder||'')}catch{}})")
+if [[ -n "$RUNNING" && "$RUNNING" == "$WANTED" && "$FOLDER" == "$HERE" ]]; then open "$URL"; exit 0; fi
 if [[ -n "$RUNNING" ]]; then
-  echo "EMMA $RUNNING is running: closing it and starting version $WANTED…"
+  if [[ "$FOLDER" != "$HERE" ]]; then echo "Another EMMA (${FOLDER:-older folder}) is running: closing it and starting this one ($HERE)…"
+  else echo "EMMA $RUNNING is running: closing it and starting version $WANTED…"; fi
+  launchctl bootout "gui/$(id -u)/it.emma.server" >/dev/null 2>&1
   for pid in $(/usr/sbin/lsof -ti tcp:4317 -sTCP:LISTEN 2>/dev/null); do kill "$pid" 2>/dev/null; done
   for i in {1..20}; do curl -fsS --max-time 1 "$URL/api/status" >/dev/null 2>&1 || break; sleep 0.5; done
 fi
