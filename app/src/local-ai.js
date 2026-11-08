@@ -4,10 +4,17 @@
 // the Ollama library), test it and turn it on.
 // EMMA talks only to the local Ollama server, plus ollama.com for the model search.
 import os from 'node:os';
+import { readFileSync } from 'node:fs';
 import express from 'express';
 import { inspectFolder, importPrevious } from './previous-data.js';
 
 // Models suggested on the welcome screen, chosen by the computer's memory.
+// The welcome screen is closed for one version only while EMMA is still empty:
+// after an update (for example a new install with the Terminal command) it opens again
+// and asks whether to bring the data of an older EMMA. With companies in it, EMMA never insists.
+const VERSION = (() => { try { return JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version; } catch { return 'dev'; } })();
+export const welcomeDismissed = (value, companies, version = VERSION) => value === version || (!!value && companies > 0);
+
 export const MODELS = [
   { id: 'gemma4:12b', label: 'Gemma 4 12B', size: 'about 8 GB', minRam: 16, note: 'Good quality summaries and analyses.' },
   { id: 'gemma4:e4b', label: 'Gemma 4 E4B', size: 'about 3 GB', minRam: 8, note: 'Lighter, for computers with 8 GB of memory. Simpler summaries.' },
@@ -61,7 +68,7 @@ export function localAiRoutes(settings, prefs, { fetchFn = fetch, ramGB = Math.r
     res.json({
       aiReady: s.aiReady, provider: s.provider, localModel: s.localModel, ollama: o, ramGB,
       models: MODELS.map(m => ({ ...m, installed: has(o.models, m.id), fits: ramGB >= m.minRam })), recommended: rec.id,
-      dismissed: prefs.pref('welcome:dismissed', false) === true, pull, companies: companies(),
+      dismissed: welcomeDismissed(prefs.pref('welcome:dismissed', false), companies()), pull, companies: companies(),
       imported: prefs.pref('welcome:imported', null), platform: process.platform,
     });
   });
@@ -84,7 +91,7 @@ export function localAiRoutes(settings, prefs, { fetchFn = fetch, ramGB = Math.r
   // ---- Use EMMA without AI ----
   router.post('/no-ai', async (req, res) => {
     await settings.save({ provider: 'none' });
-    prefs.setPref('welcome:dismissed', true);
+    prefs.setPref('welcome:dismissed', VERSION);
     res.json({ ok: true });
   });
 
@@ -143,13 +150,13 @@ export function localAiRoutes(settings, prefs, { fetchFn = fetch, ramGB = Math.r
       await settings.save({ provider: 'local', localModel: exact, localUrl: base() + '/v1' });
       const t0 = Date.now();
       await settings.test();
-      prefs.setPref('welcome:dismissed', true);
+      prefs.setPref('welcome:dismissed', VERSION);
       res.json({ ok: true, model: exact, seconds: Math.round((Date.now() - t0) / 1000) });
     } catch {
       res.status(400).json({ error: 'The model is saved but did not answer. Wait a few seconds (the first start is slow) and press the button again.' });
     }
   });
 
-  router.post('/dismiss', (req, res) => { prefs.setPref('welcome:dismissed', req.body?.dismissed !== false); res.json({ ok: true }); });
+  router.post('/dismiss', (req, res) => { prefs.setPref('welcome:dismissed', req.body?.dismissed === false ? false : VERSION); res.json({ ok: true }); });
   return router;
 }

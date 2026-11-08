@@ -47,3 +47,13 @@ test('welcome screen: Ollama check, model download with progress, turn on and te
     assert.equal((await call('/status')).dismissed, true);
   } finally { server.close(); }
 });
+
+test('the welcome screen comes back after an update while EMMA is still empty', async () => {
+  const { welcomeDismissed } = await import('../src/local-ai.js');
+  assert.equal(welcomeDismissed(false, 0, '3.18.2'), false);
+  assert.equal(welcomeDismissed('3.18.2', 0, '3.18.2'), true);   // closed in this version
+  assert.equal(welcomeDismissed('3.18.1', 0, '3.18.2'), false);  // closed in an older version, still empty
+  assert.equal(welcomeDismissed(true, 0, '3.18.2'), false);      // older EMMA saved true
+  assert.equal(welcomeDismissed(true, 4, '3.18.2'), true);       // EMMA in use: do not insist
+  assert.equal(welcomeDismissed('3.18.1', 4, '3.18.2'), true);
+});
