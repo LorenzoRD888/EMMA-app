@@ -290,3 +290,4 @@ details[open]>.set-summary:before{content:'▾'}
 @media(max-width:850px){.article-row .article-side{width:100%;align-items:flex-start;flex-direction:row;flex-wrap:wrap}.article-actions{width:100%;max-width:410px;grid-template-columns:repeat(4,minmax(0,1fr))}.article-row .article-side img{width:110px;height:70px}}
 @media(max-width:480px){.article-actions{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none}}
 .w-first{border:2px solid var(--green);background:#f6faf2}.w-first h3{margin-top:0}
+.is-busy{opacity:.65;cursor:progress}

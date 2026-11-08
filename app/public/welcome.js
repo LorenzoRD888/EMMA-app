@@ -40,7 +40,7 @@ function previousBox() {
   return `<section class="w-card"><h3>Data from a previous EMMA</h3>
     <p class="small">Tell EMMA where the old version is: it brings companies, news, people, notes, settings and keys into this version. The old folder is not changed${empty ? '' : '; what is in this EMMA now is saved in <code>data/backups</code> and then replaced'}.</p>
     ${pathHelp()}
-    <div class="w-inline"><input id="wPrevPath" placeholder="${isWin() ? 'e.g. C:\\Users\\name\\Documents\\EMMA' : 'e.g. /Users/name/Desktop/EMMA'}" value="${esc(W.prevPath)}"><button class="btn" data-w="prev-look">Check folder</button></div>
+    <div class="w-inline"><input id="wPrevPath" placeholder="${isWin() ? 'e.g. C:\\Users\\name\\Documents\\EMMA' : 'e.g. /Users/name/Desktop/EMMA'}" value="${esc(W.prevPath)}"><button class="btn" data-w="prev-look" ${W.checking ? 'disabled' : ''}>${W.checking ? '<span class="spinner">◌</span> Checking…' : 'Check folder'}</button></div>
     ${W.prevError ? `<p class="notice">${esc(W.prevError)}</p>` : ''}
     ${found}</section>`;
 }
@@ -140,6 +140,8 @@ document.addEventListener('change', e => {
 document.addEventListener('click', async e => {
   const b = e.target.closest('[data-w]'); if (!b) return;
   const w = b.dataset.w; W.error = '';
+  // Immediate feedback: the button shows it is working until the answer arrives.
+  if (b.tagName === 'BUTTON' && !['open', 'close', 'prev-toggle', 'prev-no', 'pick'].includes(w)) { b.disabled = true; b.classList.add('is-busy'); }
   try {
     if (w === 'open') return open();
     if (w === 'close') { $('#dialog').close(); return; }
@@ -147,11 +149,12 @@ document.addEventListener('click', async e => {
     if (w === 'skip') { await api('/dismiss', { method: 'POST', body: { dismissed: true } }); $('#dialog').close(); return; }
     if (w === 'prev-toggle') { W.prevOpen = true; return paint(); }
     if (w === 'prev-no') { W.prevNo = true; return paint(); }
-    if (w === 'prev-look') { if (!W.prevPath.trim()) return; W.prev = null; W.prevError = ''; try { W.prev = await api('/inspect?path=' + encodeURIComponent(W.prevPath.trim())); } catch (x) { W.prevError = x.message; } return paint(); }
+    if (w === 'prev-look') { if (!W.prevPath.trim()) { b.disabled = false; b.classList.remove('is-busy'); return; } W.prev = null; W.prevError = ''; W.checking = true; b.innerHTML = '<span class="spinner">◌</span> Checking…'; try { W.prev = await api('/inspect?path=' + encodeURIComponent(W.prevPath.trim())); } catch (x) { W.prevError = x.message; } finally { W.checking = false; } return paint(); }
     if (w === 'import') {
       const path = b.dataset.path;
       if (W.st.companies && !confirm(`Replace the ${W.st.companies} companies now in this EMMA with the data of ${path}? A backup copy is kept in data/backups.`)) return;
       W.importing = path; paint();
+      // While the data are copied (it can take a while with a large archive) the button shows "Bringing…".
       try { W.imported = await api('/import', { method: 'POST', body: { path } }); } finally { W.importing = ''; }
       await refresh(true); return paint();
     }
@@ -165,6 +168,7 @@ document.addEventListener('click', async e => {
     if (w === 'use') { W.testing = true; paint(); try { const r = await api('/use', { method: 'POST', body: { model: W.chosen } }); W.done = r.model; } finally { W.testing = false; } return paint(); }
     if (w === 'finish') { $('#dialog').close(); location.reload(); }
   } catch (x) { W.error = x.message; paint(); }
+  finally { if (b.isConnected && b.classList.contains('is-busy')) { b.disabled = false; b.classList.remove('is-busy'); } }
 });
 
 // First start: open by itself when EMMA is still empty (to offer bringing the data of an older EMMA)
